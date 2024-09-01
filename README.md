@@ -45,18 +45,15 @@ Source: [Tutorials > FastHTML By Example > Constructing HTML ([https://docs.fast
 # Why use import *
 # https://docs.fastht.ml/explains/faq.html#why-use-import
 from fasthtml.common import *
-app = FastHTML()
+
+css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
+app = FastHTML(hdrs=(picolink, css))
 
 @app.get("/")
 def home():
-    page = Html(
-        Head(Title('Some page')),
-        Body(Div('Some text, ', A('A link', href='https://example.com'), Img(src="https://placehold.co/200"), cls='myclass')))
-    return page
-
-# Adding interactivity is surprisingly easy, thanks to HTMX.
-@app.get('/change')
-def change(): return P('Nice to be here!')
+    return (Title("Hello World"), Main(
+        H1('Hello, World'), 
+        cls="container"))
 
 serve()
 ```
@@ -73,10 +70,6 @@ app,rt = fast_app()
 
 @rt('/')
 def get(): return Div(P('Hello World!'), hx_get="/change")
-
-# Adding interactivity is surprisingly easy, thanks to HTMX.
-@rt('/change')
-def get(): return P('Nice to be here!')
 
 serve()
 ```
@@ -101,9 +94,28 @@ def get():
 serve()
 ```
 
-## Adding Interactivity
+## Adding Interactivity using HTMX
 
+You don't need to include anything as HTMX is automatically bundled
 
+```python
+from fasthtml.common import *
+
+css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
+app = FastHTML(hdrs=(picolink, css))
+
+@app.get("/")
+def home():
+    return (Title("Hello World"), Main(
+        H1('Hello, World'), 
+        Div(P('Hello World!'), hx_get="/change"),
+        cls="container"))
+
+@app.get('/change')
+def change(): return P('Nice to be here!')
+
+serve()
+```
 
 ## Deploy app locally
 
