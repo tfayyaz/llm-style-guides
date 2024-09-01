@@ -94,6 +94,16 @@ def get():
 serve()
 ```
 
+## Styling with PicoCSS
+
+Always include PicoCSS styling using
+
+```python
+from fasthtml.common import *
+css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
+app = FastHTML(hdrs=(picolink, css))
+```
+
 ## Layout with grids
 
 ### Simple example
@@ -173,6 +183,84 @@ def get_card(id: int):
     if content:
         return card(content)
     return P("Content not found")
+
+serve()
+```
+
+## Charts
+
+Using Plotly
+
+Adapted from: [tutorials >quickstart_for_web_devs > a-minimal-charting-application](https://docs.fastht.ml/tutorials/quickstart_for_web_devs.html#a-minimal-charting-application)
+
+```python
+import json
+from fasthtml.common import *
+
+css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
+
+app = FastHTML(hdrs=(
+    picolink,
+    css,
+    Script(src="https://cdn.plot.ly/plotly-2.32.0.min.js")
+))
+
+data = json.dumps({
+    "data": [
+        {"x": [1, 2, 3, 4], "type": "scatter"},
+        {"x": [1, 2, 3, 4], "y": [16, 5, 11, 9], "type": "scatter"}
+    ],
+    "layout": {
+        "title": "Plotly chart in FastHTML",
+        "xaxis": {"title": "X Axis"},
+        "yaxis": {"title": "Y Axis"}
+    }
+})
+
+@app.get("/")
+def home():
+    return (
+        Title("Plotly Chart Demo"),
+        Main(
+            H1("Plotly Chart Demo"),
+            P("This is a demo dashboard using Plotly in FastHTML"),
+            Div(id="myDiv"),
+            Script(f"var data = {data}; Plotly.newPlot('myDiv', data.data, data.layout);"),
+            cls="container"
+        )
+    )
+
+serve()
+```
+
+Using Observable plot
+
+```python
+from fasthtml.common import *
+
+css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
+
+app = FastHTML(hdrs=(
+    picolink, css,
+    Script(src="https://cdn.jsdelivr.net/npm/d3@7"),
+    Script(src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6")
+))
+
+@app.get("/")
+def home():
+    return (
+        Title("D3 and Observable Plot Demo"),
+        Main(
+            H1("D3 and Observable Plot Demo"),
+            Div(id="myplot"),
+            Script("""
+                const plot = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
+                const div = document.querySelector("#myplot");
+                div.append(plot);
+            """, type="module"),
+            cls="container"
+        )
+    )
 
 serve()
 ```
