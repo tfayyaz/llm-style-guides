@@ -451,6 +451,28 @@ def render(room):
 app,rt,rooms,Room = fast_app('data/drawapp.db', render=render, id=int, name=str, created_at=str, pk='id')
 ```
 
+## Forms
+
+Source:  https://docs.fastht.ml/tutorials/e2e.html#drawing-rooms
+
+```python
+@app.get("/")
+def home():
+    # The 'Input' id defaults to the same as the name, so you can omit it if you wish
+    create_room = Form(Input(id="name", name="name", placeholder="New Room Name"),
+                       Button("Create Room"),
+                       hx_post="/rooms", hx_target="#rooms-list", hx_swap="afterbegin")
+    rooms_list = Ul(*rooms(order_by='id DESC'), id='rooms-list')
+    return Titled("DrawCollab", 
+                  H1("DrawCollab"),
+                  create_room, rooms_list)
+
+@app.post("/rooms")
+async def room(room:Room):
+    room.created_at = datetime.now().isoformat()
+    return rooms.insert(room)
+```
+
 ## Deploy app locally
 
 ```sh
