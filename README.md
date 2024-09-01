@@ -104,7 +104,9 @@ css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}
 app = FastHTML(hdrs=(picolink, css))
 ```
 
-## Layout with grids
+## Layout with grids (TODO)
+
+- Update advanced to use [http://flexboxgrid.com/](http://flexboxgrid.com/)
 
 ### Simple example
 
@@ -121,7 +123,7 @@ grid = Html(
 show(grid)
 ```
 
-### Advanced example
+### Advanced example (TODO)
 
 ```python
 from fasthtml.common import *
