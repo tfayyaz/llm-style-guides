@@ -96,6 +96,8 @@ serve()
 
 ## Layout with grids
 
+### Simple example
+
 ```
 grid = Html(
     Link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css", type="text/css"),
@@ -109,9 +111,77 @@ grid = Html(
 show(grid)
 ```
 
+### Advanced example
+
+```python
+from fasthtml.common import *
+
+css = Style('''
+    :root {--pico-font-size:90%,--pico-font-family: Arial, sans-serif;}
+    .grid-container { display: grid; grid-template-columns: 20% 80%; gap: 20px; }
+    .title-list { background-color: #f0f0f0; padding: 20px; }
+    .title-item { cursor: pointer; margin-bottom: 10px; }
+    .title-item:hover { text-decoration: underline; }
+    .card { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+''')
+
+app = FastHTML(hdrs=(picolink, css))
+
+titles = [
+    {"id": 1, "title": "Amazing Landscapes", "description": "Breathtaking views from around the world"},
+    {"id": 2, "title": "Cute Animals", "description": "Adorable creatures that will melt your heart"},
+    {"id": 3, "title": "Futuristic Technology", "description": "Glimpses into the world of tomorrow"}
+]
+
+@app.get("/")
+def home():
+    return (
+        Title("Dynamic Content App"),
+        Main(
+            H1("Dynamic Content App"),
+            Div(
+                Div(
+                    H2("Titles"),
+                    *[P(title["title"], 
+                        cls="title-item", 
+                        hx_get=f"/card/{title['id']}", 
+                        hx_target="#card-container",
+                        hx_swap="innerHTML") for title in titles],
+                    cls="title-list"
+                ),
+                Div(
+                    card(titles[0]),
+                    id="card-container",
+                    cls="card"
+                ),
+                cls="grid-container"
+            ),
+            cls="container"
+        )
+    )
+
+def card(content):
+    return Div(
+        H2(content["title"]),
+        P(content["description"]),
+        Img(src=f"https://placehold.co/300", alt=content["title"])
+    )
+
+@app.get("/card/{id}")
+def get_card(id: int):
+    content = next((title for title in titles if title["id"] == id), None)
+    if content:
+        return card(content)
+    return P("Content not found")
+
+serve()
+```
+
 ## Adding Interactivity using HTMX
 
 You don't need to include anything as HTMX is automatically bundled
+
+This will swap the contect of the element that is clicked
 
 ```python
 from fasthtml.common import *
@@ -128,6 +198,83 @@ def home():
 
 @app.get('/change')
 def change(): return P('Nice to be here!')
+
+serve()
+```
+
+Use htmx hx_target="#card-container" and hx_swap to correctly update content in another location
+
+The possible values of the hx_swap attribute are:
+* innerHTML - Replace the inner html of the target element
+* outerHTML - Replace the entire target element with the response
+* textContent - Replace the text content of the target element, without parsing the response as HTML
+* beforebegin - Insert the response before the target element
+* afterbegin - Insert the response before the first child of the target element
+* beforeend - Insert the response after the last child of the target element
+* afterend - Insert the response after the target element
+* delete - Deletes the target element regardless of the response
+* none- Does not append content from response (out of band items will still be processed).
+
+```python
+from fasthtml.common import *
+
+css = Style('''
+    :root {--pico-font-size:90%,--pico-font-family: Arial, sans-serif;}
+    .grid-container { display: grid; grid-template-columns: 20% 80%; gap: 20px; }
+    .title-list { background-color: #f0f0f0; padding: 20px; }
+    .title-item { cursor: pointer; margin-bottom: 10px; }
+    .title-item:hover { text-decoration: underline; }
+    .card { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+''')
+
+app = FastHTML(hdrs=(picolink, css))
+
+titles = [
+    {"id": 1, "title": "Amazing Landscapes", "description": "Breathtaking views from around the world"},
+    {"id": 2, "title": "Cute Animals", "description": "Adorable creatures that will melt your heart"},
+    {"id": 3, "title": "Futuristic Technology", "description": "Glimpses into the world of tomorrow"}
+]
+
+@app.get("/")
+def home():
+    return (
+        Title("Dynamic Content App"),
+        Main(
+            H1("Dynamic Content App"),
+            Div(
+                Div(
+                    H2("Titles"),
+                    *[P(title["title"], 
+                        cls="title-item", 
+                        hx_get=f"/card/{title['id']}", 
+                        hx_target="#card-container",
+                        hx_swap="innerHTML") for title in titles],
+                    cls="title-list"
+                ),
+                Div(
+                    card(titles[0]),
+                    id="card-container",
+                    cls="card"
+                ),
+                cls="grid-container"
+            ),
+            cls="container"
+        )
+    )
+
+def card(content):
+    return Div(
+        H2(content["title"]),
+        P(content["description"]),
+        Img(src=f"https://placehold.co/300", alt=content["title"])
+    )
+
+@app.get("/card/{id}")
+def get_card(id: int):
+    content = next((title for title in titles if title["id"] == id), None)
+    if content:
+        return card(content)
+    return P("Content not found")
 
 serve()
 ```
