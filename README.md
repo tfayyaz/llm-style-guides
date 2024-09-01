@@ -2,7 +2,9 @@
 
 Collection of style guides that can be pasted in ChatGPT, Claude, Cursor, etc to help code based on my prefrences and notes.
 
-For example FastHTML supports different ways of developing apps including `app,rt = fast_app()` vs `app = FastHTML()`.
+- FastHTML Style Guide
+
+For example FastHTML supports different ways of developing apps including `app = FastHTML()` vs `app,rt = fast_app()` vs `app = FastHTML(); rt = app.route`.
 
 This style guide explains the difference and can then help LLMs to convert examples to my preferred style.
 
