@@ -6,7 +6,7 @@ Collection of style guides that can be pasted in ChatGPT, Claude, Cursor, etc to
 
 For example FastHTML supports different ways of developing apps including `app = FastHTML()` vs `app,rt = fast_app()` vs `app = FastHTML(); rt = app.route`.
 
-This style guide explains the difference and can then help LLMs to convert examples to my preferred style.
+The style guide aims to explain the difference and therefore can help human readers and LLMs to convert examples to my preferred coding style.
 
 # FastHTML Style Guide
 
@@ -33,11 +33,56 @@ Since fasthtml is a Python library, you can install it with:
 pip install python-fasthtml
 ```
 
-## Apps and routes
+## FastHTML() vs fast_app()
 
-There are 3 supported ways for creating app and defining routes
+You should use always use FastHTML(). If you see a fast_app() example like this:
 
-### Option 1: (Prefered. Use this!)
+```python
+app,rt,rooms,Room = fast_app('data/drawapp.db', render=render, id=int, name=str, created_at=str, pk='id')
+```
+
+Convert it to the FastHTML() version
+
+```
+db = database('data/drawapp.db')
+rooms = db.t.rooms
+if rooms not in db.t:
+    rooms.create(id=int, name=str, created_at=str, pk='id')
+Room = rooms.dataclass()
+
+@patch
+def __ft__(self:Room):
+    return Li(A(self.name, href=f"/rooms/{self.id}"))
+```
+
+This is because my preferred style is to seperate the database creation from the app and route creation
+
+This is also because prefer to use 
+
+```python
+app.get()
+def home():
+```
+
+vs
+
+```python
+@rt('/')
+def get(): 
+```
+
+## Apps and routes (TODO)
+
+- Explain the differemce between app 3 options
+
+There are 3 supported ways for creating apps and defining routes
+
+- Option 1: `app = FastHTML()` << Preferred. Use this!
+- Option 2: `app,rt = fast_app()` 
+- Option 3: ```app = FastHTML()
+  rt = app.route```
+
+### Option 1: (Preferred. Use this!)
 
 Source: [Tutorials > FastHTML By Example > Constructing HTML (https://docs.fastht.ml/tutorials/by_example.html#constructing-html)](https://docs.fastht.ml/tutorials/by_example.html#constructing-html)
 
@@ -369,6 +414,41 @@ def get_card(id: int):
     return P("Content not found")
 
 serve()
+```
+
+## SQLite Database (TODO)
+
+- Explain the dirrefent methods for using SQLite databases
+
+- Option 1: `db = database('data/drawapp.db')` << Preferred. Use this!
+- Option 2: `app,rt,rooms,Room = fast_app('data/drawapp.db', render=render, id=int, name=str, created_at=str, pk='id')`
+
+Source: https://docs.fastht.ml/tutorials/e2e.html#drawing-rooms
+
+### Option 1: `db = database('data/drawapp.db')` << Preferred. Use this!
+
+```python
+db = database('data/drawapp.db')
+rooms = db.t.rooms
+if rooms not in db.t:
+    rooms.create(id=int, name=str, created_at=str, pk='id')
+Room = rooms.dataclass()
+
+@patch
+def __ft__(self:Room):
+    return Li(A(self.name, href=f"/rooms/{self.id}"))
+```
+
+Option 2: If you see this convert to Option 1: `db = database('data/drawapp.db')`
+
+Note: Issue with option 2 is that you can only create 1 table for the whole app (Need to confirm).
+This might be useful in some scenarios.
+
+```python
+def render(room):
+    return Li(A(room.name, href=f"/rooms/{room.id}"))
+
+app,rt,rooms,Room = fast_app('data/drawapp.db', render=render, id=int, name=str, created_at=str, pk='id')
 ```
 
 ## Deploy app locally
