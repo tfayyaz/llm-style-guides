@@ -455,22 +455,64 @@ app,rt,rooms,Room = fast_app('data/drawapp.db', render=render, id=int, name=str,
 
 Source:  https://docs.fastht.ml/tutorials/e2e.html#drawing-rooms
 
+
+
 ```python
+from fasthtml.common import *
+from datetime import datetime
+from fastcore.utils import patch
+
+css = Style('''
+    :root {--pico-font-size:90%,--pico-font-family: Arial, sans-serif;}
+    .url-form { margin-bottom: 2rem; }
+    .url-list { list-style-type: none; padding: 0; }
+    .url-item { margin-bottom: 0.5rem; }
+''')
+
+app = FastHTML(hdrs=(picolink, css))
+
+# Database setup
+db = database('data/urlsaver.db')
+urls = db.t.urls
+if urls not in db.t:
+    urls.create(id=int, url=str, created_at=str, pk='id')
+URL = urls.dataclass()
+
+@patch
+def __ft__(self: URL):
+    return Li(A(self.url, href=self.url, target="_blank"), cls="url-item")
+
 @app.get("/")
 def home():
-    # The 'Input' id defaults to the same as the name, so you can omit it if you wish
-    create_room = Form(Input(id="name", name="name", placeholder="New Room Name"),
-                       Button("Create Room"),
-                       hx_post="/rooms", hx_target="#rooms-list", hx_swap="afterbegin")
-    rooms_list = Ul(*rooms(order_by='id DESC'), id='rooms-list')
-    return Titled("DrawCollab", 
-                  H1("DrawCollab"),
-                  create_room, rooms_list)
+    return (
+        Title("URL Saver"),
+        Main(
+            H1("URL Saver"),
+            Form(
+                Input(type="url", name="url", placeholder="Enter a URL", required=True),
+                Button("Save URL", type="submit"),
+                cls="url-form",
+                hx_post="/save-url",
+                hx_target="#url-list",
+                hx_swap="afterbegin"
+            ),
+            H2("Saved URLs"),
+            Ul(
+                *[URL.__ft__(url) for url in urls()],  # Changed to use urls()
+                id="url-list",
+                cls="url-list"
+            ),
+            cls="container"
+        )
+    )
 
-@app.post("/rooms")
-async def room(room:Room):
-    room.created_at = datetime.now().isoformat()
-    return rooms.insert(room)
+@app.post("/save-url")
+def save_url(url: str):
+    new_url = URL(url=url, created_at=datetime.now().isoformat())
+    urls.insert(new_url)
+    return URL.__ft__(new_url)
+
+serve()
 ```
 
 ## Deploy app locally
