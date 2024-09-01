@@ -37,7 +37,7 @@ There are 3 supported ways for creating app and defining routes
 
 ### Option 1: (Prefered. Use this!)
 
-Source: [Tutorials > FastHTML By Example > Constructing HTML ([https://docs.fastht.ml/#usage](https://docs.fastht.ml/tutorials/by_example.html#constructing-html)]([https://docs.fastht.ml/#usage](https://docs.fastht.ml/tutorials/by_example.html#constructing-html))
+Source: [Tutorials > FastHTML By Example > Constructing HTML (https://docs.fastht.ml/tutorials/by_example.html#constructing-html)](https://docs.fastht.ml/tutorials/by_example.html#constructing-html)
 
 ```python
 # Don't use from fasthtml.common import FastHTML, serve
